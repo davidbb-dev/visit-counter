@@ -5,17 +5,7 @@ const redis = require('redis');
 const app = express();
 const port = process.env.APP_PORT;
 
-const redisClient = redis.createClient({
-    url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
-});
-
-redisClient.on('error', (err) => {
-    console.error('Redis error:', err.message);
-});
-
-redisClient.connect().catch((err) => {
-    console.error('Redis connection failed:', err.message);
-});
+let redisClient;
 
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
@@ -55,6 +45,22 @@ app.get('/health', async (req, res) => {
     }
 });
 
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Server running on port ${port}`);
-});
+if (require.main === module) {
+    redisClient = redis.createClient({
+        url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
+    });
+
+    redisClient.on('error', (err) => {
+        console.error('Redis error:', err.message);
+    });
+
+    redisClient.connect().catch((err) => {
+        console.error('Redis connection failed:', err.message);
+    });
+
+    app.listen(port, '0.0.0.0', () => {
+        console.log(`Server running on port ${port}`);
+    });
+}
+
+module.exports = app;
