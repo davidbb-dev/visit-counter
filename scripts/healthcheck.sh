@@ -2,6 +2,7 @@
 
 if [ -z "$1" ]; then
     echo "Usage: $0 <base-url>"
+    echo "Example: $0 http://localhost:8080"
     exit 1
 fi
 
@@ -11,7 +12,7 @@ for attempt in {1..5}; do
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Attempt $attempt/5"
 
     if curl --silent --fail --output /dev/null "$url"; then
-        echo "Healthcheck Successful"
+        echo "Healthcheck successful"
         exit 0
     fi
 
