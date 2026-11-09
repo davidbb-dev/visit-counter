@@ -1,11 +1,11 @@
 upstream app_servers {
     zone app_servers 64k;
     resolver 127.0.0.11 valid=5s ipv6=off;
-    server app:8080 resolve;
+    server app:${APP_PORT} resolve;
 }
 
 server {
-    listen 80;
+    listen ${NGINX_PORT};
 
     location / {
         proxy_pass http://app_servers;
