@@ -43,15 +43,37 @@ Compose reads `.env` and passes these values to the services. Nginx uses `nginx/
 ## Architecture
 
 ```text
-        Client (localhost:8080)
-                 |
-           Nginx :80
-          /         \
-   Express :8080  Express :8080
-          \         /
-           Redis :6379
-                 |
-        Named volume (AOF)
+             Client (Browser / curl)
+                        |
+                        | HTTP localhost:8080
+                        v
+                +-----------------+
+                | Nginx           |
+                | Reverse proxy   |
+                | Load balancer   |
+                | Port 80         |
+                +-----------------+
+                     |       |
+                     v       v
+              +----------+ +----------+
+              | Express  | | Express  |
+              | app-1    | | app-2    |
+              | :8080    | | :8080    |
+              +----------+ +----------+
+                     |       |
+                     +---+---+
+                         |
+                         | redis:6379
+                         v
+                 +---------------+
+                 | Redis         |
+                 | Visit counter |
+                 | AOF           |
+                 +---------------+
+                         |
+                         v
+                  Docker named volume
+                      redis_data
 ```
 
 The two Express instances share one Redis counter. Only Nginx publishes a host port, bound to `127.0.0.1`. Nginx uses round-robin load balancing.
